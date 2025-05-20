@@ -75,15 +75,16 @@ class ModeloPerfilEstudiantil:
        
        #Seleccionamos las Columnas que queremos usar y eliminamos los valores nulos
        df['Use_of_Educational_Tech'] = df['Use_of_Educational_Tech'].map({'Yes': 0, 'No': 1})
+       df['Final_Grade'] = df['Final_Grade'].map({'A': 0, 'B': 1, 'C': 2, 'D': 3})
 
-       selected_columns = ['Study_Hours_per_Week', 'Use_of_Educational_Tech','Online_Courses_Completed','Preferred_Learning_Style']
+       selected_columns = ['Study_Hours_per_Week', 'Use_of_Educational_Tech','Online_Courses_Completed','Preferred_Learning_Style','Final_Grade']
        df = df[selected_columns].dropna()
        
        #mapear estilo de aprendizaje 
        df['Preferred_Learning_Style'] = df['Preferred_Learning_Style'].map(self.answers)
        
        # Separar características y etiqueta
-       X = df[['Study_Hours_per_Week', 'Use_of_Educational_Tech', 'Online_Courses_Completed']]
+       X = df[['Study_Hours_per_Week', 'Use_of_Educational_Tech', 'Online_Courses_Completed','Final_Grade']]
        y = df['Preferred_Learning_Style']
 
        # Dividir en entrenamiento y prueba
@@ -119,16 +120,19 @@ class ModeloPerfilEstudiantil:
         base_courses = 3
         courses_completed = base_courses + (teorico * 3) + (visual * 2) # los que les gusta la teoria tienden a terminar mas cursos
         courses_completed = min(base_courses + (teorico * 3) + (visual * 2), 20)
+        
+        final_grade = 60 + (practico * 5) + (visual * 2) + (teorico * 3)
+        final_grade = min(final_grade, 100)
 
         
-        return study_hours, tech_use, courses_completed
+        return study_hours, tech_use, courses_completed, final_grade
     def predict_from_answers(self):
         
         user_answers = self.ask_questions()
-        study_hours , tech_use, courses_completed = self.linking_answers(user_answers)
+        study_hours , tech_use, courses_completed, final_grade = self.linking_answers(user_answers)
         # Organizar las características en el mismo orden que en el entrenamiento
-        input_data = pd.DataFrame([[study_hours, tech_use, courses_completed]],
-                                columns=['Study_Hours_per_Week', 'Use_of_Educational_Tech', 'Online_Courses_Completed'])
+        input_data = pd.DataFrame([[study_hours, tech_use, courses_completed, final_grade]],
+                                columns=['Study_Hours_per_Week', 'Use_of_Educational_Tech', 'Online_Courses_Completed','Final_Grade'])
 
         prediction = self.model.predict(input_data)[0]
 
@@ -152,17 +156,17 @@ class ModeloPerfilEstudiantil:
     def load_model(self):
         self.model = joblib.load(self.data_modelpath)
 
-modelo = ModeloPerfilEstudiantil("Proyecto_ia/app/student_performance_large_dataset.csv")
+# modelo = ModeloPerfilEstudiantil("app/student_performance_large_dataset.csv")
 
-X_train, X_test, y_train, y_test = modelo.preprocess_data()
-modelo.train(X_train, y_train)
-modelo.evaluate(X_test, y_test)
-# Recoger respuestas del usuario
+# X_train, X_test, y_train, y_test = modelo.preprocess_data()
+# modelo.train(X_train, y_train)
+# modelo.evaluate(X_test, y_test)
+# # Recoger respuestas del usuario
 
 
 
-resultado = modelo.predict_from_answers()
-print(f"\n➡️  Tu estilo de aprendizaje principal es: {resultado}")
+# resultado = modelo.predict_from_answers()
+# print(f"\n➡️  Tu estilo de aprendizaje principal es: {resultado}")
 
 
        
