@@ -1,0 +1,125 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+
+class ModeloPerfilEstudiantil:
+    
+    def __init__(self, filename, data_modelpath="modelStudent.pk"):
+        self.filename = filename
+        self.data_modelpath = data_modelpath
+        self.model = DecisionTreeClassifier(max_depth=6, min_samples_split=15, random_state=42)  # Árbol de decisión
+        self.answers = {'Visual': 0, 'Reading/Writing': 1, 'Kinesthetic': 2, 'Auditory': 3}
+        self.questions = [
+                {
+            "text": "¿Qué método prefieres para aprender algo nuevo?",
+            "options": ["Ver un video explicativo", "Leer un manual o guía", "Hacerlo tú mismo", "Escuchar una explicación"],
+            "mapping": {"Ver un video explicativo": 0, "Leer un manual o guía": 1, "Hacerlo tú mismo": 2, "Escuchar una explicación": 3}
+        },
+        {
+            "text": "Cuando te explican algo, ¿qué te ayuda más?",
+            "options": ["Imágenes o esquemas", "Definiciones claras", "Ejemplos prácticos", "Explicación hablada"],
+            "mapping": {"Imágenes o esquemas": 0, "Definiciones claras": 1, "Ejemplos prácticos": 2, "Explicación hablada": 3}
+        },
+        {
+            "text": "¿Qué prefieres hacer para prepararte para un examen?",
+            "options": ["Ver resúmenes visuales", "Leer teoría", "Hacer ejercicios", "Grabarme leyendo y escucharme"],
+            "mapping": {"Ver resúmenes visuales": 0, "Leer teoría": 1, "Hacer ejercicios": 2, "Grabarme leyendo y escucharme": 3}
+        }
+        ]
+
+
+    
+    def preprocess_data(self):
+       
+       #se carga el archivo 
+       df = pd.read_csv(self.filename)
+       
+       #Seleccionamos las Columnas que queremos usar y eliminamos los valores nulos
+       df['Use_of_Educational_Tech'] = df['Use_of_Educational_Tech'].map({'Yes': 0, 'No': 1})
+
+       selected_columns = ['Study_Hours_per_Week', 'Use_of_Educational_Tech','Online_Courses_Completed','Preferred_Learning_Style']
+       df = df[selected_columns].dropna()
+       
+       #mapear estilo de aprendizaje 
+       df['Preferred_Learning_Style'] = df['Preferred_Learning_Style'].map(self.answers)
+       
+       # Separar características y etiqueta
+       X = df[['Study_Hours_per_Week', 'Use_of_Educational_Tech', 'Online_Courses_Completed']]
+       y = df['Preferred_Learning_Style']
+
+       # Dividir en entrenamiento y prueba
+       X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+       return X_train, X_test, y_train, y_test
+   
+    def ask_questions(self):
+        answers =[]
+        print("Responde las siguientes preguntas:")
+        for q in self.questions:
+            print("\n" + q["text"])
+            for idx, opt in enumerate(q['options']):
+                print(f"{idx + 1}. {opt}")
+            choice = int(input("Elige una opción (1 - 4): "))
+            selected = q["options"][choice - 1]
+            answers.append(q["mapping"][selected])
+        return answers
+    
+    def linking_answers(self, answers):
+        #respuestas Obtenidas
+        visual = answers.count(0)
+        teorico = answers.count(1)
+        practico = answers.count(2)
+        auditivo = answers.count(3)
+        
+        #relacionamos las respuestas 
+        study_hours = 5 + (practico * 10) + (teorico * 2)
+        study_hours = min(study_hours, 49) #mas horas de estudio = más practico
+        
+        tech_use = 1 if visual + auditivo >= 1 else 0
+        
+        base_courses = 3
+        courses_completed = base_courses + (teorico * 3) + (visual * 2) # los que les gusta la teoria tienden a terminar mas cursos
+        courses_completed = min(base_courses, 20)
+        
+        return study_hours, tech_use, courses_completed
+    def predict_from_answers(self):
+        
+        user_answers = self.ask_questions()
+        study_hours , tech_use, courses_completed = self.linking_answers(user_answers)
+        # Organizar las características en el mismo orden que en el entrenamiento
+        input_data = pd.DataFrame([[study_hours, tech_use, courses_completed]],
+                                columns=['Study_Hours_per_Week', 'Use_of_Educational_Tech', 'Online_Courses_Completed'])
+
+        prediction = self.model.predict(input_data)[0]
+
+        reverse_answers = {v: k for k, v in self.answers.items()}
+        return reverse_answers.get(prediction, "Desconocido")
+
+
+    def train(self, X_train, y_train):
+        self.model.fit(X_train, y_train)
+    
+    def evaluate(self, X_test, y_test):
+        accuracy = self.model.score(X_test, y_test)
+        print(f"Precisión del modelo: {accuracy:.2f}")
+
+modelo = ModeloPerfilEstudiantil("app/student_performance_large_dataset.csv")
+
+X_train, X_test, y_train, y_test = modelo.preprocess_data()
+modelo.train(X_train, y_train)
+modelo.evaluate(X_test, y_test)
+# Recoger respuestas del usuario
+
+
+
+resultado = modelo.predict_from_answers()
+print(f"\n➡️  Tu estilo de aprendizaje principal es: {resultado}")
+
+
+       
+
+    
+    
+
+
