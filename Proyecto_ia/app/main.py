@@ -3,6 +3,7 @@ from .ModeloEstudiante import ModeloPerfilEstudiantil
 from .recomendador.MotorYoutube import RecomendadorCursosYoutube
 from .recomendador.MotorBooks import RecomendadorDeLibros
 from .recomendador.MotorSpotify import MotorSpotify
+from .recomendador.MotorPractico import MotorFreeCodeCamp
 from fastapi import FastAPI
 
 
@@ -16,7 +17,7 @@ Modelo_estudiante.evaluate(X_test, y_test)
 
 @app.get("/plan_completo")
 def obtener_plan():
-    estilo_aprendizaje = 'Visual'
+    estilo_aprendizaje = Modelo_estudiante.predict_from_answers()
     if estilo_aprendizaje == "Visual":
         youtube = RecomendadorCursosYoutube(estilo_aprendizaje)
         plan_visual = youtube.recomendar_planCompleto('python para principiantes')
@@ -27,10 +28,15 @@ def obtener_plan():
         plan_teorico = books.recomendar_planCompleto('python')
         print(plan_teorico)
         return plan_teorico
-    else:
+    elif estilo_aprendizaje == 'Auditory':
         spotify = MotorSpotify(estilo_aprendizaje)
         plan_auditivo = spotify.recomendar_planCompleto('ingles')
         print(plan_auditivo)
         return plan_auditivo
+    else:
+        freecode = MotorFreeCodeCamp(estilo_aprendizaje)
+        plan_practico = freecode.recomendar_planCompleto('php')
+        print(plan_practico)
+        return plan_practico
 
 

@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 import joblib
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV
 
 class ModeloPerfilEstudiantil:
     
@@ -86,10 +87,22 @@ class ModeloPerfilEstudiantil:
        # Separar características y etiqueta
        X = df[['Study_Hours_per_Week', 'Use_of_Educational_Tech', 'Online_Courses_Completed','Final_Grade']]
        y = df['Preferred_Learning_Style']
+       
+       #entrenamiento con datos sinteticos
+       df_sint = pd.read_csv('app/synthetic_dataset.csv')
+       df_sint = df_sint[selected_columns].dropna()
+       df_sint['Preferred_Learning_Style'] = df_sint['Preferred_Learning_Style'].map(self.answers)
+       df_sint['Use_of_Educational_Tech'] = df_sint['Use_of_Educational_Tech'].map({'Yes': 0, 'No': 1})
+       
+       df_total = pd.concat([df, df_sint], ignore_index=True)
+
+       X = df_total[['Study_Hours_per_Week', 'Use_of_Educational_Tech', 'Online_Courses_Completed','Final_Grade']]
+       y = df_total['Preferred_Learning_Style']
 
        # Dividir en entrenamiento y prueba
        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
+       
+       print(df_total['Preferred_Learning_Style'].value_counts())
        return X_train, X_test, y_train, y_test
    
     def ask_questions(self):
@@ -126,6 +139,9 @@ class ModeloPerfilEstudiantil:
 
         
         return study_hours, tech_use, courses_completed, final_grade
+    
+    
+        
     def predict_from_answers(self):
         
         user_answers = self.ask_questions()
@@ -147,7 +163,7 @@ class ModeloPerfilEstudiantil:
         y_pred = self.model.predict(X_test)
         print(f"Precisión del modelo: {accuracy_score(y_test, y_pred):.2f}")
         print(confusion_matrix(y_test, y_pred))
-        print(classification_report(y_test, y_pred))
+        print(classification_report(y_test, y_pred, target_names=["Visual", "Reading/Writing", "Kinesthetic", "Auditory"]))
 
 
     def save_model(self):
@@ -156,17 +172,19 @@ class ModeloPerfilEstudiantil:
     def load_model(self):
         self.model = joblib.load(self.data_modelpath)
 
-# modelo = ModeloPerfilEstudiantil("app/student_performance_large_dataset.csv")
+modelo = ModeloPerfilEstudiantil("app/student_performance_large_dataset.csv")
 
-# X_train, X_test, y_train, y_test = modelo.preprocess_data()
-# modelo.train(X_train, y_train)
-# modelo.evaluate(X_test, y_test)
-# # Recoger respuestas del usuario
+X_train, X_test, y_train, y_test = modelo.preprocess_data()
+modelo.train(X_train, y_train)
+modelo.evaluate(X_test, y_test)
+# Recoger respuestas del usuario
 
 
 
-# resultado = modelo.predict_from_answers()
-# print(f"\n➡️  Tu estilo de aprendizaje principal es: {resultado}")
+resultado = modelo.predict_from_answers()
+print(f"\n➡️  Tu estilo de aprendizaje principal es: {resultado}")
+
+
 
 
        
