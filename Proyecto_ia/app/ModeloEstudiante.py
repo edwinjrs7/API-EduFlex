@@ -1,6 +1,8 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+import joblib
+from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.metrics import accuracy_score
 
 class ModeloPerfilEstudiantil:
@@ -8,7 +10,7 @@ class ModeloPerfilEstudiantil:
     def __init__(self, filename, data_modelpath="modelStudent.pk"):
         self.filename = filename
         self.data_modelpath = data_modelpath
-        self.model = DecisionTreeClassifier(max_depth=6, min_samples_split=15, random_state=42)  # Árbol de decisión
+        self.model = RandomForestClassifier(max_depth=6, min_samples_split=15, random_state=42)  # Árbol de decisión
         self.answers = {'Visual': 0, 'Reading/Writing': 1, 'Kinesthetic': 2, 'Auditory': 3}
         self.questions = [
     {
@@ -116,7 +118,8 @@ class ModeloPerfilEstudiantil:
         
         base_courses = 3
         courses_completed = base_courses + (teorico * 3) + (visual * 2) # los que les gusta la teoria tienden a terminar mas cursos
-        courses_completed = min(base_courses, 20)
+        courses_completed = min(base_courses + (teorico * 3) + (visual * 2), 20)
+
         
         return study_hours, tech_use, courses_completed
     def predict_from_answers(self):
@@ -137,10 +140,19 @@ class ModeloPerfilEstudiantil:
         self.model.fit(X_train, y_train)
     
     def evaluate(self, X_test, y_test):
-        accuracy = self.model.score(X_test, y_test)
-        print(f"Precisión del modelo: {accuracy:.2f}")
+        y_pred = self.model.predict(X_test)
+        print(f"Precisión del modelo: {accuracy_score(y_test, y_pred):.2f}")
+        print(confusion_matrix(y_test, y_pred))
+        print(classification_report(y_test, y_pred))
 
-modelo = ModeloPerfilEstudiantil("app/student_performance_large_dataset.csv")
+
+    def save_model(self):
+        joblib.dump(self.model, self.data_modelpath)
+
+    def load_model(self):
+        self.model = joblib.load(self.data_modelpath)
+
+modelo = ModeloPerfilEstudiantil("Proyecto_ia/app/student_performance_large_dataset.csv")
 
 X_train, X_test, y_train, y_test = modelo.preprocess_data()
 modelo.train(X_train, y_train)
