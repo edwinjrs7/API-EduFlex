@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 import joblib
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import GridSearchCV
+from typing import List
 
 class ModeloPerfilEstudiantil:
     
@@ -105,14 +105,16 @@ class ModeloPerfilEstudiantil:
        print(df_total['Preferred_Learning_Style'].value_counts())
        return X_train, X_test, y_train, y_test
    
-    def ask_questions(self):
+    def ask_questions(self, user_choices: List[int]):
+        if len(user_choices) != len(self.questions):
+            raise ValueError(f"Se esperaban {len(self.questions)} respuestas, pero se recibieron {len(user_choices)}.")
         answers =[]
-        print("Responde las siguientes preguntas:")
-        for q in self.questions:
-            print("\n" + q["text"])
-            for idx, opt in enumerate(q['options']):
-                print(f"{idx + 1}. {opt}")
-            choice = int(input("Elige una opción (1 - 4): "))
+        
+            
+        for idx, (q, choice) in enumerate(zip(self.questions, user_choices)):
+                
+            if not 1 <= choice <= 4:
+                raise ValueError(f"La opción {choice} no es válida para la pregunta {idx + 1}. Debe estar entre 1 y 4.") 
             selected = q["options"][choice - 1]
             answers.append(q["mapping"][selected])
         return answers
@@ -142,9 +144,9 @@ class ModeloPerfilEstudiantil:
     
     
         
-    def predict_from_answers(self):
+    def predict_from_answers(self, user_choices: List[int])-> str:
         
-        user_answers = self.ask_questions()
+        user_answers = self.ask_questions(user_choices)
         study_hours , tech_use, courses_completed, final_grade = self.linking_answers(user_answers)
         # Organizar las características en el mismo orden que en el entrenamiento
         input_data = pd.DataFrame([[study_hours, tech_use, courses_completed, final_grade]],
@@ -172,17 +174,17 @@ class ModeloPerfilEstudiantil:
     def load_model(self):
         self.model = joblib.load(self.data_modelpath)
 
-modelo = ModeloPerfilEstudiantil("app/student_performance_large_dataset.csv")
+# modelo = ModeloPerfilEstudiantil("app/student_performance_large_dataset.csv")
 
-X_train, X_test, y_train, y_test = modelo.preprocess_data()
-modelo.train(X_train, y_train)
-modelo.evaluate(X_test, y_test)
-# Recoger respuestas del usuario
+# X_train, X_test, y_train, y_test = modelo.preprocess_data()
+# modelo.train(X_train, y_train)
+# modelo.evaluate(X_test, y_test)
+# # Recoger respuestas del usuario
+# modelo.save_model()
 
 
-
-resultado = modelo.predict_from_answers()
-print(f"\n➡️  Tu estilo de aprendizaje principal es: {resultado}")
+# resultado = modelo.predict_from_answers()
+# print(f"\n➡️  Tu estilo de aprendizaje principal es: {resultado}")
 
 
 
