@@ -11,22 +11,58 @@ class ModeloPerfilEstudiantil:
         self.model = DecisionTreeClassifier(max_depth=6, min_samples_split=15, random_state=42)  # Árbol de decisión
         self.answers = {'Visual': 0, 'Reading/Writing': 1, 'Kinesthetic': 2, 'Auditory': 3}
         self.questions = [
-                {
-            "text": "¿Qué método prefieres para aprender algo nuevo?",
-            "options": ["Ver un video explicativo", "Leer un manual o guía", "Hacerlo tú mismo", "Escuchar una explicación"],
-            "mapping": {"Ver un video explicativo": 0, "Leer un manual o guía": 1, "Hacerlo tú mismo": 2, "Escuchar una explicación": 3}
-        },
-        {
-            "text": "Cuando te explican algo, ¿qué te ayuda más?",
-            "options": ["Imágenes o esquemas", "Definiciones claras", "Ejemplos prácticos", "Explicación hablada"],
-            "mapping": {"Imágenes o esquemas": 0, "Definiciones claras": 1, "Ejemplos prácticos": 2, "Explicación hablada": 3}
-        },
-        {
-            "text": "¿Qué prefieres hacer para prepararte para un examen?",
-            "options": ["Ver resúmenes visuales", "Leer teoría", "Hacer ejercicios", "Grabarme leyendo y escucharme"],
-            "mapping": {"Ver resúmenes visuales": 0, "Leer teoría": 1, "Hacer ejercicios": 2, "Grabarme leyendo y escucharme": 3}
+    {
+        "text": "¿Qué método prefieres para aprender algo nuevo?",
+        "options": ["Ver un video explicativo", "Leer un manual o guía", "Hacerlo tú mismo", "Escuchar una explicación"],
+        "mapping": {
+            "Ver un video explicativo": 0,
+            "Leer un manual o guía": 1,
+            "Hacerlo tú mismo": 2,
+            "Escuchar una explicación": 3
         }
-        ]
+    },
+    {
+        "text": "¿Qué te resulta más útil al repasar una clase?",
+        "options": ["Esquemas, diagramas o imágenes", "Apuntes escritos o resúmenes", "Repetir la práctica o ejercicios", "Escuchar audios o explicaciones orales"],
+        "mapping": {
+            "Esquemas, diagramas o imágenes": 0,
+            "Apuntes escritos o resúmenes": 1,
+            "Repetir la práctica o ejercicios": 2,
+            "Escuchar audios o explicaciones orales": 3
+        }
+    },
+    {
+        "text": "¿Qué haces primero cuando no entiendes algo?",
+        "options": ["Busco un gráfico o video", "Releo mis apuntes o un libro", "Pruebo hacerlo por mí mismo", "Le pido a alguien que me lo explique"],
+        "mapping": {
+            "Busco un gráfico o video": 0,
+            "Releo mis apuntes o un libro": 1,
+            "Pruebo hacerlo por mí mismo": 2,
+            "Le pido a alguien que me lo explique": 3
+        }
+    },
+    {
+        "text": "¿Cómo prefieres estudiar para un examen?",
+        "options": ["Mirando mapas mentales o videos", "Releyendo y subrayando el texto", "Haciendo ejercicios o prácticas", "Explicando en voz alta o escuchando"],
+        "mapping": {
+            "Mirando mapas mentales o videos": 0,
+            "Releyendo y subrayando el texto": 1,
+            "Haciendo ejercicios o prácticas": 2,
+            "Explicando en voz alta o escuchando": 3
+        }
+    },
+    {
+        "text": "¿Qué herramienta usarías en una presentación?",
+        "options": ["Infografías o imágenes", "Diapositivas con texto", "Demostraciones prácticas", "Grabación de audio o narración"],
+        "mapping": {
+            "Infografías o imágenes": 0,
+            "Diapositivas con texto": 1,
+            "Demostraciones prácticas": 2,
+            "Grabación de audio o narración": 3
+        }
+    }
+]
+
 
 
     
