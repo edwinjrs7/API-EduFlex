@@ -16,7 +16,7 @@ Modelo_estudiante.evaluate(X_test, y_test)
 
 @app.get("/plan_completo")
 def obtener_plan():
-    estilo_aprendizaje = Modelo_estudiante.predict_from_answers()
+    estilo_aprendizaje = 'Visual'
     if estilo_aprendizaje == "Visual":
         youtube = RecomendadorCursosYoutube(estilo_aprendizaje)
         plan_visual = youtube.recomendar_planCompleto('python para principiantes')
