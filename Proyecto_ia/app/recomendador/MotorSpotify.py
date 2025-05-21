@@ -74,7 +74,7 @@ class MotorSpotify(MotorDeRecomendaciones):
             if episode_id not in self.historial_recomendaciones:
                 episodios.append({
                     'id': episode_id,
-                    'name': name,
+                    'title': name,
                     'description': description,
                     'show': show_name,
                     'url': podcast_url,

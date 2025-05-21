@@ -65,7 +65,7 @@ class RecomendadorDeLibros(MotorDeRecomendaciones):
                     'rating': rating,
                     'ratings_count': ratings_count,
                     'thumbnail': thumbnail,
-                    'preview_link': preview_link
+                    'url': preview_link
                 })
                 
             # Agregamos al historial
