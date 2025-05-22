@@ -97,7 +97,7 @@ class MotorSpotify(MotorDeRecomendaciones):
         keywords = caracteristicas.get('keywords',[])
         
         #creamos corpus TF-IDF
-        corpus = [f"{ad['name']} {ad['description']}" for ad in audios]
+        corpus = [f"{ad['title']} {ad['description']}" for ad in audios]
         corpus.append(" ".join(keywords + [tema_curso]))
         
         # Vectorizar y calcular similitud
