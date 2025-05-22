@@ -49,7 +49,7 @@ def obtener_plan():
     estilo_aprendizaje = ultimo_estilo_predicho
     if estilo_aprendizaje in ('Visual','Kinesthetic'):
         youtube = RecomendadorCursosYoutube(estilo_aprendizaje)
-        plan_visual = youtube.recomendar_planCompleto('python para principiantes')
+        plan_visual = youtube.recomendar_planCompleto('python')
         print(plan_visual)
         return plan_visual
     elif estilo_aprendizaje == 'Reading/Writing':
@@ -59,7 +59,7 @@ def obtener_plan():
         return plan_teorico
     elif estilo_aprendizaje == 'Auditory':
         spotify = MotorSpotify(estilo_aprendizaje)
-        plan_auditivo = spotify.recomendar_planCompleto('ingles')
+        plan_auditivo = spotify.recomendar_planCompleto('python')
         print(plan_auditivo)
         return plan_auditivo
     else:
