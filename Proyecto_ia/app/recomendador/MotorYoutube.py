@@ -13,7 +13,7 @@ class RecomendadorCursosYoutube(MotorDeRecomendaciones):
     def __init__(self, aprendizaje, api_key = None):
         super().__init__(aprendizaje)
         
-        self.api_key = api_key or os.environ.get("YOUTUBE_API_KEY", "AIzaSyBjjE6r9G3kCnqpHh0n6fPUPSihi1sRJgQ")
+        self.api_key = api_key or os.environ.get("YOUTUBE_API_KEY", "AIzaSyBYlWdnwinkG5HwZIOD1GWzKrSEmAE7xkA")
         
         if not self.api_key:
             return f'Advertencia: No se ha proporcionado una API Key para Youtube. Algunas funciones pueden no estar disponible.'
