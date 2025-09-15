@@ -11,7 +11,7 @@ class ModeloPerfilEstudiantil:
     def __init__(self, filename, data_modelpath="modelStudent.pk"):
         self.filename = filename
         self.data_modelpath = data_modelpath
-        self.model = RandomForestClassifier(max_depth=6, min_samples_split=15, random_state=42)  # Árbol de decisión
+        self.model = RandomForestClassifier(max_depth= 10, min_samples_split=10,random_state=420,n_estimators=400)  # Árbol de decisión
         self.answers = {'Visual': 0, 'Reading/Writing': 1, 'Kinesthetic': 2, 'Auditory': 3}
         self.questions = [
     {
@@ -66,8 +66,7 @@ class ModeloPerfilEstudiantil:
     }
 ]
 
-
-
+        
     
     def preprocess_data(self):
        

@@ -1,22 +1,26 @@
 from .ModeloEstudiante import ModeloPerfilEstudiantil
-
+from sqlalchemy.orm import Session
 from .recomendador.MotorYoutube import RecomendadorCursosYoutube
 from .recomendador.MotorBooks import RecomendadorDeLibros
 from .recomendador.MotorSpotify import MotorSpotify
 from pydantic import BaseModel
 from typing import List
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi import FastAPI, Depends
+from .db import database
+from .db.database import Estudiante, PrediccionEstilo, get_db
+import json
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 file = 'app/student_performance_large_dataset.csv'
 Modelo_estudiante = ModeloPerfilEstudiantil(file)
@@ -36,10 +40,22 @@ class ResultadoEstilo(BaseModel):
 ultimo_estilo_predicho =None
  
 @app.post("/predecir_estilo", response_model=ResultadoEstilo)
-def predecir_estilo(respuestas_usuario : RespuestasUsuario):
+def predecir_estilo(respuestas_usuario : RespuestasUsuario,db: Session = Depends(get_db)):
     global ultimo_estilo_predicho
     estilo = Modelo_estudiante.predict_from_answers(respuestas_usuario.respuestas)
     ultimo_estilo_predicho = estilo
+    
+    nueva_pred = database.PrediccionEstilo(
+        estudiante_id = None,
+        estilo_aprendizaje = estilo,
+        respuesta = json.dumps(respuestas_usuario.respuestas)
+        
+    )
+    
+    db.add(nueva_pred)
+    db.commit()
+    db.refresh(nueva_pred)
+    
     return {"estilo_aprendizaje": ultimo_estilo_predicho}
 
 @app.get("/plan_completo")
