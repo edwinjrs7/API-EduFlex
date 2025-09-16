@@ -20,16 +20,16 @@ def get_db():
 class Estudiante(Base):
     __tablename__ = "estudiantes"
     id = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String, index=True)
-    apellido = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
+    nombre = Column(String(100), index=True)
+    apellido = Column(String(100), index=True)
+    email = Column(String(100), unique=True, index=True)
     edad = Column(Integer, nullable=True)
     
 class PrediccionEstilo(Base):
     __tablename__ = "predicciones_estilo"
     id = Column(Integer, primary_key=True, index=True)
     estudiante_id = Column(Integer, ForeignKey("estudiantes.id"))
-    estilo_aprendizaje = Column(String (50))
+    estilo_aprendizaje = Column(String(50))
     respuesta = Column(Text)
     
 Base.metadata.create_all(bind=engine)
