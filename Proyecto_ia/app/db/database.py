@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends
 
-DATABASE_URL= "sqlite:///./education.db"
+DATABASE_URL= "mysql+pymysql://root:nJRutLeFpvvcoEXKGCDeyiRGTgTIiesJ@turntable.proxy.rlwy.net:35137/railway"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
