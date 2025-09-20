@@ -32,4 +32,11 @@ class PrediccionEstilo(Base):
     estilo_aprendizaje = Column(String(50))
     respuesta = Column(Text)
     
+class RecursosRecomendados(Base):
+    __tablename__ = "recursos_recomendados"
+    id= Column(Integer, primary_key=True, index=True)
+    prediccion_id = Column(Integer, ForeignKey("prediccion.id"))
+    recursos= Column(Text)  
+    
+    
 Base.metadata.create_all(bind=engine)

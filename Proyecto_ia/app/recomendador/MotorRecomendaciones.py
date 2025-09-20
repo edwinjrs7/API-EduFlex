@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from openai import OpenAI
 import json
 
 

@@ -191,8 +191,6 @@ class RecomendadorCursosYoutube(MotorDeRecomendaciones):
             'recomendacion_general': self.generarConsejosPersonalizados()
         }
         
-        curso_organizado = organizador_de_cursos(curso)
-        
         return curso
     
     
