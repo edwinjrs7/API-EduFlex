@@ -35,7 +35,7 @@ class PrediccionEstilo(Base):
 class RecursosRecomendados(Base):
     __tablename__ = "recursos_recomendados"
     id= Column(Integer, primary_key=True, index=True)
-    prediccion_id = Column(Integer, ForeignKey("prediccion.id"))
+    prediccion_id = Column(Integer, ForeignKey("predicciones_estilo.id"))
     recursos= Column(Text)  
     
     
