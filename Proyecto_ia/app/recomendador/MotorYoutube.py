@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from .MotorRecomendaciones import MotorDeRecomendaciones
-from app.ChatGpt.bestfriend import organizador_de_cursos
+
 
 #creamos la clase del buscador de youtube en cual hereda de la clase padre MotorDeRecomendaciones
 class RecomendadorCursosYoutube(MotorDeRecomendaciones):
