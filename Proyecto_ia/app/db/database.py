@@ -25,7 +25,7 @@ class Estudiante(Base):
     email = Column(String(100), unique=True, index=True)
     edad = Column(Integer, nullable=True)
     
-    predicciones = relationship("PrediccionEstilo", back_populates="Estudiante")
+    predicciones = relationship("PrediccionEstilo", back_populates="estudiante")
     
 class PrediccionEstilo(Base):
     __tablename__ = "predicciones_estilo"
