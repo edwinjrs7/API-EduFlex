@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, String, Float, Text
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, String, Float, Text, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm import Session
@@ -25,6 +25,8 @@ class Estudiante(Base):
     email = Column(String(100), unique=True, index=True)
     edad = Column(Integer, nullable=True)
     
+    predicciones = relationship("PrediccionEstilo", back_populates="Estudiante")
+    
 class PrediccionEstilo(Base):
     __tablename__ = "predicciones_estilo"
     id = Column(Integer, primary_key=True, index=True)
@@ -32,11 +34,16 @@ class PrediccionEstilo(Base):
     estilo_aprendizaje = Column(String(50))
     respuesta = Column(Text)
     
+    estudiante = relationship("Estudiante", back_populates="predicciones")
+    recursos = relationship("RecursosRecomendados", back_populates="prediccion")
+    
 class RecursosRecomendados(Base):
     __tablename__ = "recursos_recomendados"
     id= Column(Integer, primary_key=True, index=True)
     prediccion_id = Column(Integer, ForeignKey("predicciones_estilo.id"))
-    recursos= Column(Text)  
+    recursos= Column(JSON)  
+    
+    prediccion = relationship("PrediccionEstilo", back_populates="recursos")
     
     
 Base.metadata.create_all(bind=engine)

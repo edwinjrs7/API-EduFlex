@@ -8,7 +8,7 @@ from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends
 from .db import database
-from .db.database import Estudiante, PrediccionEstilo, get_db
+from .db.database import Estudiante, PrediccionEstilo,RecursosRecomendados, get_db
 import json
 
 app = FastAPI()
@@ -22,7 +22,7 @@ app.add_middleware(
 
 
 
-file = 'Proyecto_ia/app/student_performance_large_dataset.csv'
+file = 'app/student_performance_large_dataset.csv'
 Modelo_estudiante = ModeloPerfilEstudiantil(file)
 X_train, X_test, y_train, y_test = Modelo_estudiante.preprocess_data()
 Modelo_estudiante.train(X_train, y_train)
@@ -59,7 +59,7 @@ def predecir_estilo(respuestas_usuario : RespuestasUsuario,db: Session = Depends
     return {"estilo_aprendizaje": ultimo_estilo_predicho}
 
 @app.get("/plan_completo")
-def obtener_plan():
+def obtener_plan(db: Session = Depends(get_db)):
     if not ultimo_estilo_predicho:
         return {"error": "Primero debes enviar respuestas al endpoint /predecir_estilo"}
     estilo_aprendizaje = ultimo_estilo_predicho
@@ -67,19 +67,46 @@ def obtener_plan():
         youtube = RecomendadorCursosYoutube(estilo_aprendizaje)
         plan_visual = youtube.recomendar_planCompleto('python')
         print(plan_visual)
+        guardar_recursos = database.RecursosRecomendados(
+            prediccion_id = db.query(PrediccionEstilo).order_by(PrediccionEstilo.id.desc()).first().id,
+            recursos = plan_visual
+        )
+        
+        db.add(guardar_recursos)
+        db.commit()
+        db.refresh(guardar_recursos)
+        
         return plan_visual
     elif estilo_aprendizaje == 'Reading/Writing':
         books = RecomendadorDeLibros(estilo_aprendizaje)
         plan_teorico = books.recomendar_planCompleto('python')
         print(plan_teorico)
+        guardar_recursos = database.RecursosRecomendados(
+            prediccion_id = db.query(PrediccionEstilo).order_by(PrediccionEstilo.id.desc()).first().id,
+            recursos = plan_teorico
+        )
+        
+        db.add(guardar_recursos)
+        db.commit()
+        db.refresh(guardar_recursos)
+        
         return plan_teorico
     elif estilo_aprendizaje == 'Auditory':
         spotify = MotorSpotify(estilo_aprendizaje)
         plan_auditivo = spotify.recomendar_planCompleto('python')
         print(plan_auditivo)
+        guardar_recursos = database.RecursosRecomendados(
+            prediccion_id = db.query(PrediccionEstilo).order_by(PrediccionEstilo.id.desc()).first().id,
+            recursos = plan_auditivo
+        )
+        
+        db.add(guardar_recursos)
+        db.commit()
+        db.refresh(guardar_recursos)
         return plan_auditivo
     else:
         return f'No se pudo determinar un estilo de aprendizaje'
-       
+    
+    
 
 
