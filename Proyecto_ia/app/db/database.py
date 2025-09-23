@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends
 
-DATABASE_URL= "mysql+pymysql://root:nJRutLeFpvvcoEXKGCDeyiRGTgTIiesJ@turntable.proxy.rlwy.net:35137/railway"
+DATABASE_URL= "mysql+pymysql://root:NbclgnjdjTtVEfRTqVIxlkrlmiItOYfY@interchange.proxy.rlwy.net:39042/railway"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -41,9 +41,9 @@ class RecursosRecomendados(Base):
     __tablename__ = "recursos_recomendados"
     id= Column(Integer, primary_key=True, index=True)
     prediccion_id = Column(Integer, ForeignKey("predicciones_estilo.id"))
-    recursos= Column(JSON)  
+    recursos = Column(JSON)
     
     prediccion = relationship("PrediccionEstilo", back_populates="recursos")
     
-    
-Base.metadata.create_all(bind=engine)
+Base.metadata.drop_all(engine)
+Base.metadata.create_all(engine)   

@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends
 from .db import database
 from .db.database import Estudiante, PrediccionEstilo,RecursosRecomendados, get_db
+from .db.funciones_db import guardarRecursos
 import json
 
 app = FastAPI()
@@ -67,42 +68,20 @@ def obtener_plan(db: Session = Depends(get_db)):
         youtube = RecomendadorCursosYoutube(estilo_aprendizaje)
         plan_visual = youtube.recomendar_planCompleto('python')
         print(plan_visual)
-        guardar_recursos = database.RecursosRecomendados(
-            prediccion_id = db.query(PrediccionEstilo).order_by(PrediccionEstilo.id.desc()).first().id,
-            recursos = plan_visual
-        )
-        
-        db.add(guardar_recursos)
-        db.commit()
-        db.refresh(guardar_recursos)
+        guardarRecursos(db,plan_visual)
         
         return plan_visual
     elif estilo_aprendizaje == 'Reading/Writing':
         books = RecomendadorDeLibros(estilo_aprendizaje)
         plan_teorico = books.recomendar_planCompleto('python')
         print(plan_teorico)
-        guardar_recursos = database.RecursosRecomendados(
-            prediccion_id = db.query(PrediccionEstilo).order_by(PrediccionEstilo.id.desc()).first().id,
-            recursos = plan_teorico
-        )
-        
-        db.add(guardar_recursos)
-        db.commit()
-        db.refresh(guardar_recursos)
-        
+        guardarRecursos(db,plan_teorico)
         return plan_teorico
     elif estilo_aprendizaje == 'Auditory':
         spotify = MotorSpotify(estilo_aprendizaje)
         plan_auditivo = spotify.recomendar_planCompleto('python')
         print(plan_auditivo)
-        guardar_recursos = database.RecursosRecomendados(
-            prediccion_id = db.query(PrediccionEstilo).order_by(PrediccionEstilo.id.desc()).first().id,
-            recursos = plan_auditivo
-        )
-        
-        db.add(guardar_recursos)
-        db.commit()
-        db.refresh(guardar_recursos)
+        guardarRecursos(db, plan_auditivo)
         return plan_auditivo
     else:
         return f'No se pudo determinar un estilo de aprendizaje'
