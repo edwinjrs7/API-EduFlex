@@ -1,5 +1,8 @@
 from openai import OpenAI
 import json
+from app.db.database import Estudiante, MemoriaFlexi, get_db
+from sqlalchemy.orm import Session
+from sqlalchemy import select
 api_key = "AIzaSyCGU7h1m3Hmi2ozEm1dGmGU2XIcpBtPOPY"
 base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
 client = OpenAI(api_key = api_key, base_url= base_url)
@@ -29,3 +32,41 @@ def organizador_de_cursos(curso_creado):
     )
     
     return json.loads(response.choices[0].message.content)
+
+def flexi(db: Session, session_id: str ,mensaje: str, temperatura=0.7, max_tokens=1024):
+    
+    new_msg = MemoriaFlexi(
+        session_id = session_id,
+        estudiante_id = None,
+        role = "user",
+        content = mensaje
+    )
+    db.add(new_msg)
+    db.commit()
+    db.refresh(new_msg)
+    
+    historial = db.execute(
+        select(MemoriaFlexi).where(MemoriaFlexi.session_id == session_id)
+    ).scalars().all()
+    
+    mensajes = [{"role": "system","content": "Eres Flexi, un asistente amigable y servicial que ayuda a los estudiantes con sus dudas académicas. Responde de manera clara y concisa."}]
+    for msg in historial:
+        mensajes.append({"role": msg.role, "content": msg.content})
+    
+    response = client.chat.completions.create(
+        model="gemini-2.5-flash",
+        messages= mensajes, 
+        temperature= temperatura,
+        max_tokens= max_tokens
+    )
+    
+    respuesta_flexi = response.choices[0].message.content
+    
+    new_msg = MemoriaFlexi(
+        session_id = session_id,
+        estudiante = None,
+        role = "assistant",
+        content = respuesta_flexi
+    )
+    
+    return respuesta_flexi

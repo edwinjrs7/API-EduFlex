@@ -141,7 +141,7 @@ class RecomendadorCursosYoutube(MotorDeRecomendaciones):
         corpus.append(" ".join(keywords + [tema_curso]))
         
         # Vectorizar y calcular similitud
-        vectorizer = TfidfVectorizer(stop_words='english')
+        vectorizer = TfidfVectorizer(stop_words=None)
         tfidf_matrix = vectorizer.fit_transform(corpus)
         
         # Calcular similitud del coseno entre cada video y las keywords del estilo

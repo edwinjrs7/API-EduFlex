@@ -4,12 +4,13 @@ from .recomendador.MotorYoutube import RecomendadorCursosYoutube
 from .recomendador.MotorBooks import RecomendadorDeLibros
 from .recomendador.MotorSpotify import MotorSpotify
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends
 from .db import database
 from .db.database import Estudiante, PrediccionEstilo,RecursosRecomendados, get_db
 from .db.funciones_db import guardarRecursos
+from .ChatGpt.bestfriend import flexi
 import json
 
 app = FastAPI()
@@ -86,6 +87,27 @@ def obtener_plan(db: Session = Depends(get_db)):
     else:
         return f'No se pudo determinar un estilo de aprendizaje'
     
+    
+class MensajeEntrada(BaseModel):
+    session_id: Optional[str] = None
+    mensaje: str
+
+class MensajeRespuesta(BaseModel):
+    session_id: str
+    mensaje: str
+    
+@app.post("/flexi", response_model=MensajeRespuesta)
+def conversa_con_flexi(mensaje_entrada: MensajeEntrada, db: Session = Depends(get_db)):
+    
+    if not mensaje_entrada.session_id:
+        import uuid
+        mensaje_entrada.session_id = str(uuid.uuid4())
+        
+    respuesta_flexi = flexi(db, mensaje_entrada.session_id, mensaje_entrada.mensaje)
+    
+    return {"session_id": mensaje_entrada.session_id, "mensaje": respuesta_flexi}
+        
+
     
 
 

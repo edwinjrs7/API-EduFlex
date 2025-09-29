@@ -26,6 +26,7 @@ class Estudiante(Base):
     edad = Column(Integer, nullable=True)
     
     predicciones = relationship("PrediccionEstilo", back_populates="estudiante")
+    memoriaFlexi = relationship("MemoriaFlexi", back_populates="estudiante")
     
 class PrediccionEstilo(Base):
     __tablename__ = "predicciones_estilo"
@@ -44,6 +45,18 @@ class RecursosRecomendados(Base):
     recursos = Column(JSON)
     
     prediccion = relationship("PrediccionEstilo", back_populates="recursos")
+    
+class MemoriaFlexi(Base):
+    __tablename__ = "memoria_de_flexi"
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String(500), index=True)
+    estudiante_id = Column(Integer, ForeignKey("estudiantes.id"))
+    role = Column(String(50))
+    content = Column(Text)
+    
+    estudiante = relationship("Estudiante", back_populates="memoriaFlexi")
+    
+    
     
 Base.metadata.drop_all(engine)
 Base.metadata.create_all(engine)   
