@@ -1,6 +1,6 @@
 from openai import OpenAI
 import json
-from app.db.database import Estudiante, MemoriaFlexi, get_db
+from db.database import Estudiante, MemoriaFlexi, get_db
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 api_key = "AIzaSyCGU7h1m3Hmi2ozEm1dGmGU2XIcpBtPOPY"
