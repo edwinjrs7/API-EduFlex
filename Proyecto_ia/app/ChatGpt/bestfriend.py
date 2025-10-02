@@ -69,4 +69,8 @@ def flexi(db: Session, session_id: str ,mensaje: str, temperatura=0.7, max_token
         content = respuesta_flexi
     )
     
+    db.add(new_msg)
+    db.commit()
+    db.refresh(new_msg)
+    
     return respuesta_flexi
