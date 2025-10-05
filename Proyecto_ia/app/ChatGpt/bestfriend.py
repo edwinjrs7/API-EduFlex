@@ -1,11 +1,15 @@
-from openai import OpenAI
+from openai import OpenAI, RateLimitError
 import json
 from ..db.database import Estudiante, MemoriaFlexi, get_db
+from ..config.config import API_KEYS
+from ..key_master.key_master import KeyMaster
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-api_key = "AIzaSyCGU7h1m3Hmi2ozEm1dGmGU2XIcpBtPOPY"
-base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
-client = OpenAI(api_key = api_key, base_url= base_url)
+from fastapi import  HTTPException 
+
+
+ApiKeyMaster = KeyMaster(API_KEYS) 
+client = ApiKeyMaster.ObtenerCLiente()
 
 
 def organizador_de_cursos(curso_creado):
@@ -34,43 +38,53 @@ def organizador_de_cursos(curso_creado):
     return json.loads(response.choices[0].message.content)
 
 def flexi(db: Session, session_id: str ,mensaje: str, temperatura=0.7, max_tokens=1024):
+    try:
     
-    new_msg = MemoriaFlexi(
-        session_id = session_id,
-        estudiante_id = None,
-        role = "user",
-        content = mensaje
-    )
-    db.add(new_msg)
-    db.commit()
-    db.refresh(new_msg)
-    
-    historial = db.execute(
-        select(MemoriaFlexi).where(MemoriaFlexi.session_id == session_id)
-    ).scalars().all()
-    
-    mensajes = [{"role": "system","content": "Eres Flexi, un asistente amigable y servicial que ayuda a los estudiantes con sus dudas académicas. Responde de manera clara y concisa."}]
-    for msg in historial:
-        mensajes.append({"role": msg.role, "content": msg.content})
-    
-    response = client.chat.completions.create(
-        model="gemini-2.5-flash",
-        messages= mensajes, 
-        temperature= temperatura,
-        max_tokens= max_tokens
-    )
-    
-    respuesta_flexi = response.choices[0].message.content
-    
-    new_msg = MemoriaFlexi(
-        session_id = session_id,
-        estudiante = None,
-        role = "assistant",
-        content = respuesta_flexi
-    )
-    
-    db.add(new_msg)
-    db.commit()
-    db.refresh(new_msg)
-    
-    return respuesta_flexi
+        new_msg = MemoriaFlexi(
+            session_id = session_id,
+            estudiante_id = None,
+            role = "user",
+            content = mensaje
+        )
+        db.add(new_msg)
+        db.commit()
+        db.refresh(new_msg)
+        
+        historial = db.execute(
+            select(MemoriaFlexi).where(MemoriaFlexi.session_id == session_id)
+        ).scalars().all()
+        
+        mensajes = [{"role": "system","content": "Eres Flexi, un asistente amigable y servicial que ayuda a los estudiantes con sus dudas académicas. Responde de manera clara y concisa."}]
+        for msg in historial:
+            mensajes.append({"role": msg.role, "content": msg.content})
+        
+        response = client.chat.completions.create(
+            model="gemini-2.5-flash",
+            messages= mensajes, 
+            temperature= temperatura,
+            max_tokens= max_tokens
+        )
+        
+        respuesta_flexi = response.choices[0].message.content
+        
+        new_msg = MemoriaFlexi(
+            session_id = session_id,
+            estudiante = None,
+            role = "assistant",
+            content = respuesta_flexi
+        )
+        
+        db.add(new_msg)
+        db.commit()
+        db.refresh(new_msg)
+        
+        return respuesta_flexi
+    except RateLimitError:
+        ApiKeyMaster.cambioDeKey()
+        try:
+            flexi(db, session_id, mensaje, temperatura, max_tokens)
+        except Exception as e:
+            raise HTTPException(status_code = 429, detail="Se ha Exedido el limite de peticiones a Flexi. Por favor, intenta más tarde.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error interno del servidor. Por favor, intenta más tarde.")   
+        
