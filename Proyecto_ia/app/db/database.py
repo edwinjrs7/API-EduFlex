@@ -1,12 +1,12 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, String, Float, Text
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, String, Float, Text, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends
 
-DATABASE_URL= "sqlite:///./education.db"
+DATABASE_URL= "mysql+pymysql://root:NbclgnjdjTtVEfRTqVIxlkrlmiItOYfY@interchange.proxy.rlwy.net:39042/railway"
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -20,16 +20,43 @@ def get_db():
 class Estudiante(Base):
     __tablename__ = "estudiantes"
     id = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String, index=True)
-    apellido = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
+    nombre = Column(String(100), index=True)
+    apellido = Column(String(100), index=True)
+    email = Column(String(100), unique=True, index=True)
     edad = Column(Integer, nullable=True)
+    
+    predicciones = relationship("PrediccionEstilo", back_populates="estudiante")
+    memoriaFlexi = relationship("MemoriaFlexi", back_populates="estudiante")
     
 class PrediccionEstilo(Base):
     __tablename__ = "predicciones_estilo"
     id = Column(Integer, primary_key=True, index=True)
     estudiante_id = Column(Integer, ForeignKey("estudiantes.id"))
-    estilo_aprendizaje = Column(String (50))
+    estilo_aprendizaje = Column(String(50))
     respuesta = Column(Text)
     
-Base.metadata.create_all(bind=engine)
+    estudiante = relationship("Estudiante", back_populates="predicciones")
+    recursos = relationship("RecursosRecomendados", back_populates="prediccion")
+    
+class RecursosRecomendados(Base):
+    __tablename__ = "recursos_recomendados"
+    id= Column(Integer, primary_key=True, index=True)
+    prediccion_id = Column(Integer, ForeignKey("predicciones_estilo.id"))
+    recursos = Column(JSON)
+    
+    prediccion = relationship("PrediccionEstilo", back_populates="recursos")
+    
+class MemoriaFlexi(Base):
+    __tablename__ = "memoria_de_flexi"
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String(500), index=True)
+    estudiante_id = Column(Integer, ForeignKey("estudiantes.id"))
+    role = Column(String(50))
+    content = Column(Text)
+    
+    estudiante = relationship("Estudiante", back_populates="memoriaFlexi")
+    
+    
+    
+Base.metadata.drop_all(engine)
+Base.metadata.create_all(engine)   

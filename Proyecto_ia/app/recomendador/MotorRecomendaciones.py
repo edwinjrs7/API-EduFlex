@@ -13,19 +13,20 @@ class MotorDeRecomendaciones(ABC):
         #Mapeo de estilos de aprendizaje a palabras clave y caracteristicas de búsqueda
         self.caracteristcas_aprendizaje = {
             'Visual': {
-                'keywords': ['visual learning', 'diagrams', 'charts', 'graphics', 'illustrations'],
-                'topic_preferences': ['animation', 'illustration', 'visualization', 'mind mapping'],
-                'format_preferences': ['video tutorial', 'animated explanation', 'visual guide']
+                'keywords': ['', 'diagramas', 'gráficos', 'mapas mentales'],
+                'topic_preferences': ['animación', 'visualización', 'mapa conceptual'],
+                'format_preferences': ['video tutorial', 'curso', 'guia paso a paso']
             },
+            
             'Reading/Writing': {
-                'keywords': ['Introducción a', 'written guides', 'documentation', 'articles'],
-                'topic_preferences': ['detailed explanations', 'written instructions', 'documentation'],
-                'format_preferences': ['lecture', 'textual explanation', 'note-taking']
+                'keywords': ['documentación', 'artículos', 'manual', 'introducción a'],
+                'topic_preferences': ['explicación detallada', 'notas de estudio'],
+                'format_preferences': ['artículo', 'guía escrita', 'documento PDF']
             },
             'Kinesthetic': {
-                'keywords': ['hands-on learning', 'practical exercises', 'interactive tutorials', 'learning by doing'],
-                'topic_preferences': ['exercises', 'projects', 'interactive demos', 'workshops'],
-                'format_preferences': ['hands-on tutorial', 'project-based', 'follow along']
+                'keywords': ['ejercicios prácticos', 'tutorial interactivo', 'aprendizaje práctico'],
+                'topic_preferences': ['proyectos', 'demos', 'workshops'],
+                'format_preferences': ['proyecto paso a paso', 'hands-on tutorial']
             },
             'Auditory': {
                 
@@ -45,6 +46,8 @@ class MotorDeRecomendaciones(ABC):
         
         # Historial de recomendaciones para evitar repeticiones 
         self.historial_recomendaciones = []
+        
+        
         
         
             
@@ -68,6 +71,8 @@ class MotorDeRecomendaciones(ABC):
     @abstractmethod
     def ranking(self,contenido, tema_curso):
         pass
+    
+   
     
     #Metodo que genera subtemas
     def generar_subtemas(self, tema_curso):
@@ -93,7 +98,7 @@ class MotorDeRecomendaciones(ABC):
             "casos de estudio"
         ]
         
-        subtemas_especiales = {}
+        subtemas_especiales = []
         
         #palabras clave de tecnología y programación
         if any(palabra in tema_curso.lower() for palabra in ["programación", "código", "python", "javascript","java","php","web","desarrollo"]):
@@ -152,6 +157,10 @@ class MotorDeRecomendaciones(ABC):
         return consejos.get(self.aprendizaje,
                            "Toma notas y practica activamente lo que aprendas en estos videos.")
     
+    
+    
+        
+        
     
     
         

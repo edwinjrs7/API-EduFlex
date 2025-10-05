@@ -4,11 +4,13 @@ from .recomendador.MotorYoutube import RecomendadorCursosYoutube
 from .recomendador.MotorBooks import RecomendadorDeLibros
 from .recomendador.MotorSpotify import MotorSpotify
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException 
 from .db import database
-from .db.database import Estudiante, PrediccionEstilo, get_db
+from .db.database import Estudiante, PrediccionEstilo,RecursosRecomendados, get_db
+from .db.funciones_db import guardarRecursos
+from .ChatGpt.bestfriend import flexi
 import json
 
 app = FastAPI()
@@ -22,7 +24,7 @@ app.add_middleware(
 
 
 
-file = 'app/student_performance_large_dataset.csv'
+file = 'Proyecto_ia/app/student_performance_large_dataset.csv'
 Modelo_estudiante = ModeloPerfilEstudiantil(file)
 X_train, X_test, y_train, y_test = Modelo_estudiante.preprocess_data()
 Modelo_estudiante.train(X_train, y_train)
@@ -59,7 +61,7 @@ def predecir_estilo(respuestas_usuario : RespuestasUsuario,db: Session = Depends
     return {"estilo_aprendizaje": ultimo_estilo_predicho}
 
 @app.get("/plan_completo")
-def obtener_plan():
+def obtener_plan(db: Session = Depends(get_db)):
     if not ultimo_estilo_predicho:
         return {"error": "Primero debes enviar respuestas al endpoint /predecir_estilo"}
     estilo_aprendizaje = ultimo_estilo_predicho
@@ -67,19 +69,48 @@ def obtener_plan():
         youtube = RecomendadorCursosYoutube(estilo_aprendizaje)
         plan_visual = youtube.recomendar_planCompleto('python')
         print(plan_visual)
+        guardarRecursos(db,plan_visual)
+        
         return plan_visual
     elif estilo_aprendizaje == 'Reading/Writing':
         books = RecomendadorDeLibros(estilo_aprendizaje)
         plan_teorico = books.recomendar_planCompleto('python')
         print(plan_teorico)
+        guardarRecursos(db,plan_teorico)
         return plan_teorico
     elif estilo_aprendizaje == 'Auditory':
         spotify = MotorSpotify(estilo_aprendizaje)
         plan_auditivo = spotify.recomendar_planCompleto('python')
         print(plan_auditivo)
+        guardarRecursos(db, plan_auditivo)
         return plan_auditivo
     else:
         return f'No se pudo determinar un estilo de aprendizaje'
-       
+    
+    
+class MensajeEntrada(BaseModel):
+    session_id: Optional[str] = None
+    mensaje: str
+
+class MensajeRespuesta(BaseModel):
+    session_id: str
+    mensaje: str
+    
+@app.post("/flexi", response_model=MensajeRespuesta)
+async def conversa_con_flexi(mensaje_entrada: MensajeEntrada, db: Session = Depends(get_db)):
+    try:
+        if not mensaje_entrada.session_id:
+            import uuid
+            mensaje_entrada.session_id = str(uuid.uuid4())
+            
+        respuesta_flexi = flexi(db, mensaje_entrada.session_id, mensaje_entrada.mensaje)
+    
+        return {"session_id": mensaje_entrada.session_id, "mensaje": respuesta_flexi}
+    except Exception as e:
+        raise HTTPException(status_code= 429, detail="Se ha Exedido el limite de peticiones a Flexi. Por favor, intenta más tarde.")
+        
+        
+
+    
 
 

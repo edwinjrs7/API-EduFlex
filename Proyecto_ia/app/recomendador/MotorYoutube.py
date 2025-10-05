@@ -7,6 +7,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from .MotorRecomendaciones import MotorDeRecomendaciones
 
+
 #creamos la clase del buscador de youtube en cual hereda de la clase padre MotorDeRecomendaciones
 class RecomendadorCursosYoutube(MotorDeRecomendaciones):
     
@@ -30,11 +31,11 @@ class RecomendadorCursosYoutube(MotorDeRecomendaciones):
             str: Consulta optimizada para búsqueda en YouTube
         """
         caracteristicas = self.caracteristcas_aprendizaje.get(self.aprendizaje,{})
-        formato = np.random.choice(caracteristicas.get('format_preferences',['tutorial']))
-        keywords = np.random.choice(caracteristicas.get('keywords',[]), 2,replace=False)
+        formato = np.random.choice(caracteristicas.get('format_preferences',['curso']))
+        # keywords = np.random.choice(caracteristicas.get('keywords',[]), 2,replace=False)
         
         # Construir consulta con las palabras claves
-        consulta = f"{tema_curso} {formato} {' '.join(keywords)}"
+        consulta = f"{formato} de {tema_curso} en español"
         return consulta
     
     # Metodo que recomienda un Video de Youtube    
@@ -140,7 +141,7 @@ class RecomendadorCursosYoutube(MotorDeRecomendaciones):
         corpus.append(" ".join(keywords + [tema_curso]))
         
         # Vectorizar y calcular similitud
-        vectorizer = TfidfVectorizer(stop_words='english')
+        vectorizer = TfidfVectorizer(stop_words=None)
         tfidf_matrix = vectorizer.fit_transform(corpus)
         
         # Calcular similitud del coseno entre cada video y las keywords del estilo
@@ -179,7 +180,7 @@ class RecomendadorCursosYoutube(MotorDeRecomendaciones):
         # Obtener videos para cada subtema
         videos_por_subtema = {}
         for subtema in subtemas:
-            videos = self.recomendar_contenido(f"{tema_curso} {subtema}", max_results= 2)
+            videos = self.recomendar_contenido(f"{tema_curso} {subtema}", max_results= 1)
             if videos:
                 videos_por_subtema[subtema] = videos
             

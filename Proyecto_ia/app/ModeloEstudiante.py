@@ -88,7 +88,7 @@ class ModeloPerfilEstudiantil:
        y = df['Preferred_Learning_Style']
        
        #entrenamiento con datos sinteticos
-       df_sint = pd.read_csv('app/synthetic_dataset.csv')
+       df_sint = pd.read_csv('Proyecto_ia/app/synthetic_dataset.csv')
        df_sint = df_sint[selected_columns].dropna()
        df_sint['Preferred_Learning_Style'] = df_sint['Preferred_Learning_Style'].map(self.answers)
        df_sint['Use_of_Educational_Tech'] = df_sint['Use_of_Educational_Tech'].map({'Yes': 0, 'No': 1})
