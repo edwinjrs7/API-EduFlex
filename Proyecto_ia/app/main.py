@@ -6,7 +6,7 @@ from .recomendador.MotorSpotify import MotorSpotify
 from pydantic import BaseModel
 from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException 
 from .db import database
 from .db.database import Estudiante, PrediccionEstilo,RecursosRecomendados, get_db
 from .db.funciones_db import guardarRecursos
@@ -97,15 +97,18 @@ class MensajeRespuesta(BaseModel):
     mensaje: str
     
 @app.post("/flexi", response_model=MensajeRespuesta)
-def conversa_con_flexi(mensaje_entrada: MensajeEntrada, db: Session = Depends(get_db)):
+async def conversa_con_flexi(mensaje_entrada: MensajeEntrada, db: Session = Depends(get_db)):
+    try:
+        if not mensaje_entrada.session_id:
+            import uuid
+            mensaje_entrada.session_id = str(uuid.uuid4())
+            
+        respuesta_flexi = flexi(db, mensaje_entrada.session_id, mensaje_entrada.mensaje)
     
-    if not mensaje_entrada.session_id:
-        import uuid
-        mensaje_entrada.session_id = str(uuid.uuid4())
+        return {"session_id": mensaje_entrada.session_id, "mensaje": respuesta_flexi}
+    except Exception as e:
+        raise HTTPException(status_code= 429, detail="Se ha Exedido el limite de peticiones a Flexi. Por favor, intenta más tarde.")
         
-    respuesta_flexi = flexi(db, mensaje_entrada.session_id, mensaje_entrada.mensaje)
-    
-    return {"session_id": mensaje_entrada.session_id, "mensaje": respuesta_flexi}
         
 
     
