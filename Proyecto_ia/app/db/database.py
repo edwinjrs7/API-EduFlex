@@ -24,6 +24,8 @@ class Estudiante(Base):
     apellido = Column(String(100), index=True)
     email = Column(String(100), unique=True, index=True)
     edad = Column(Integer, nullable=True)
+    contraseña = Column(String(100), nullable=True)
+    
     
     predicciones = relationship("PrediccionEstilo", back_populates="estudiante")
     memoriaFlexi = relationship("MemoriaFlexi", back_populates="estudiante")

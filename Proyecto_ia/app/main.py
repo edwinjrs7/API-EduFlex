@@ -22,6 +22,52 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class EstudianteRegistro(BaseModel):
+    id: int
+    nombre:str
+    apellido: str
+    email: str
+    edad: int 
+    contraseña: str
+
+class EstudianteLogin(BaseModel):
+    nombre: str
+    contraseña: str
+    
+
+# -------- Registro --------
+@app.post("/registro")
+def registrar_estudiante(data: EstudianteRegistro, db: Session = Depends(get_db)):
+    estudiante = Estudiante(
+        id=data.id,
+        nombre=data.nombre,
+        apellido=data.apellido,
+        email=data.email,
+        edad=data.edad,
+        contraseña=data.contraseña   # ⚠️ en un sistema real deberías hashear la contraseña
+
+    )
+
+    db.add(estudiante)
+    try:
+        db.commit()
+        db.refresh(estudiante)
+    except:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="El nombre ya está registrado")
+
+    return {"message": "Registro exitoso", "id": estudiante.id}
+
+# -------- Login --------
+
+@app.post("/login_estudiante")
+def login_estudiante(data: EstudianteLogin, db: Session = Depends(get_db)):
+    estudiante = db.query(Estudiante).filter(Estudiante.nombre == data.nombre).first()
+
+    if not estudiante or estudiante.contraseña != data.contraseña:
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+    return {"message": "Login exitoso", "id": estudiante.id, "nombre": estudiante.nombre}
 
 
 file = 'Proyecto_ia/app/student_performance_large_dataset.csv'
@@ -30,6 +76,9 @@ X_train, X_test, y_train, y_test = Modelo_estudiante.preprocess_data()
 Modelo_estudiante.train(X_train, y_train)
 Modelo_estudiante.evaluate(X_test, y_test)
 Modelo_estudiante.save_model()
+
+
+
 
 # Entrada
 class RespuestasUsuario(BaseModel):
