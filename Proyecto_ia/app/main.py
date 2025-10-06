@@ -71,6 +71,7 @@ def login_estudiante(data: EstudianteLogin, db: Session = Depends(get_db)):
 
 
 file = 'Proyecto_ia/app/student_performance_large_dataset.csv'
+
 Modelo_estudiante = ModeloPerfilEstudiantil(file)
 X_train, X_test, y_train, y_test = Modelo_estudiante.preprocess_data()
 Modelo_estudiante.train(X_train, y_train)
@@ -147,16 +148,15 @@ class MensajeRespuesta(BaseModel):
     
 @app.post("/flexi", response_model=MensajeRespuesta)
 async def conversa_con_flexi(mensaje_entrada: MensajeEntrada, db: Session = Depends(get_db)):
-    try:
-        if not mensaje_entrada.session_id:
-            import uuid
-            mensaje_entrada.session_id = str(uuid.uuid4())
-            
-        respuesta_flexi = flexi(db, mensaje_entrada.session_id, mensaje_entrada.mensaje)
     
-        return {"session_id": mensaje_entrada.session_id, "mensaje": respuesta_flexi}
-    except Exception as e:
-        raise HTTPException(status_code= 429, detail="Se ha Exedido el limite de peticiones a Flexi. Por favor, intenta más tarde.")
+    if not mensaje_entrada.session_id:
+        import uuid
+        mensaje_entrada.session_id = str(uuid.uuid4())
+        
+    respuesta_flexi = flexi(db, mensaje_entrada.session_id, mensaje_entrada.mensaje)
+
+    return {"session_id": mensaje_entrada.session_id, "mensaje": respuesta_flexi}
+    
         
         
 
