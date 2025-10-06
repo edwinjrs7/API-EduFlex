@@ -42,7 +42,7 @@ def flexi(db: Session, session_id: str ,mensaje: str, temperatura=0.7, max_token
     
         new_msg = MemoriaFlexi(
             session_id = session_id,
-            estudiante_id = None,
+            estudiante_id = db.query(Estudiante).order_by(Estudiante.id.desc()).first().id,
             role = "user",
             content = mensaje
         )

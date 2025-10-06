@@ -97,7 +97,7 @@ def predecir_estilo(respuestas_usuario : RespuestasUsuario,db: Session = Depends
     ultimo_estilo_predicho = estilo
     
     nueva_pred = database.PrediccionEstilo(
-        estudiante_id = None,
+        estudiante_id = db.query(Estudiante).order_by(Estudiante.id.desc()).first().id,
         estilo_aprendizaje = estilo,
         respuesta = json.dumps(respuestas_usuario.respuestas)
         
