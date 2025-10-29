@@ -16,6 +16,8 @@ class RecomendadorCursosYoutube(MotorDeRecomendaciones):
         
         self.api_key = api_key or os.environ.get("YOUTUBE_API_KEY", "AIzaSyBYlWdnwinkG5HwZIOD1GWzKrSEmAE7xkA")
         
+        self.progreso = {}
+        
         if not self.api_key:
             return f'Advertencia: No se ha proporcionado una API Key para Youtube. Algunas funciones pueden no estar disponible.'
     
@@ -177,17 +179,28 @@ class RecomendadorCursosYoutube(MotorDeRecomendaciones):
         # Determinar subtemas basados en el tema principal
         subtemas = self.generar_subtemas(tema_curso)
         
-        # Obtener videos para cada subtema
-        videos_por_subtema = {}
+        # Inicializar estructura del curso
+        modulos = []
+        progreso_total = 0
+
         for subtema in subtemas:
             videos = self.recomendar_contenido(f"{tema_curso} {subtema}", max_results= 1)
-            if videos:
-                videos_por_subtema[subtema] = videos
             
+            progreso_modulo = self.progreso.get(subtema, 0)  # Valor de progreso por subtema
+            
+            modulos.append({
+                "subtema": subtema,
+                "progreso": progreso_modulo,
+                "videos": videos
+            })
+            
+            progreso_total += progreso_modulo
+        
+        progreso_general = progreso_total / len(subtemas) if subtemas else 0
         curso = {
             'tema_principal': tema_curso,
             'estilo_aprendizaje': self.aprendizaje,
-            'subtemas': videos_por_subtema,
+            'modulo': modulos,
             'recomendacion_general': self.generarConsejosPersonalizados()
         }
         

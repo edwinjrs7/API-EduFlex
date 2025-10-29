@@ -88,7 +88,7 @@ class ModeloPerfilEstudiantil:
        y = df['Preferred_Learning_Style']
        
        #entrenamiento con datos sinteticos
-       df_sint = pd.read_csv('Proyecto_ia/app/synthetic_dataset.csv')
+       df_sint = pd.read_csv('app/synthetic_dataset.csv')
        df_sint = df_sint[selected_columns].dropna()
        df_sint['Preferred_Learning_Style'] = df_sint['Preferred_Learning_Style'].map(self.answers)
        df_sint['Use_of_Educational_Tech'] = df_sint['Use_of_Educational_Tech'].map({'Yes': 0, 'No': 1})
@@ -162,9 +162,13 @@ class ModeloPerfilEstudiantil:
     
     def evaluate(self, X_test, y_test):
         y_pred = self.model.predict(X_test)
-        print(f"Precisión del modelo: {accuracy_score(y_test, y_pred):.2f}")
-        print(confusion_matrix(y_test, y_pred))
-        print(classification_report(y_test, y_pred, target_names=["Visual", "Reading/Writing", "Kinesthetic", "Auditory"]))
+        metricas = {
+            "Precisión del modelo": f"{accuracy_score(y_test, y_pred):.2f}",
+            "Matriz de confusión": confusion_matrix(y_test, y_pred).tolist(),
+            "reporte de clasificación": classification_report(y_test, y_pred, target_names=["Visual", "Reading/Writing", "Kinesthetic", "Auditory"],output_dict=True)
+        }
+        return metricas
+        
 
 
     def save_model(self):

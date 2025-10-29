@@ -82,7 +82,7 @@ def flexi(db: Session, session_id: str ,mensaje: str, temperatura=0.7, max_token
     except RateLimitError:
         ApiKeyMaster.cambioDeKey()
         try:
-            flexi(db, session_id, mensaje, temperatura, max_tokens)
+            return flexi(db, session_id, mensaje, temperatura, max_tokens)
         except Exception as e:
             raise HTTPException(status_code = 429, detail="Se ha Exedido el limite de peticiones a Flexi. Por favor, intenta más tarde.")
     except Exception as e:

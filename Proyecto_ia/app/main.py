@@ -70,7 +70,7 @@ def login_estudiante(data: EstudianteLogin, db: Session = Depends(get_db)):
     return {"message": "Login exitoso", "id": estudiante.id, "nombre": estudiante.nombre}
 
 
-file = 'Proyecto_ia/app/student_performance_large_dataset.csv'
+file = 'app/student_performance_large_dataset.csv'
 
 Modelo_estudiante = ModeloPerfilEstudiantil(file)
 X_train, X_test, y_train, y_test = Modelo_estudiante.preprocess_data()
@@ -156,7 +156,11 @@ async def conversa_con_flexi(mensaje_entrada: MensajeEntrada, db: Session = Depe
     respuesta_flexi = flexi(db, mensaje_entrada.session_id, mensaje_entrada.mensaje)
 
     return {"session_id": mensaje_entrada.session_id, "mensaje": respuesta_flexi}
-    
+
+@app.get("/precision_modelo")
+def obtener_precision_modelo():
+    metricas = Modelo_estudiante.evaluate(X_test, y_test)
+    return metricas
         
         
 

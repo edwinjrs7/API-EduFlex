@@ -121,7 +121,7 @@ class RecomendadorDeLibros(MotorDeRecomendaciones):
         # Obtener libros para cada subtema
         libro_por_subtema = {}
         for subtema in subtemas:
-            libros = self.recomendar_contenido(f"{tema_curso} {subtema}", max_results=2)    
+            libros = self.recomendar_contenido(f"{tema_curso} {subtema}", max_results=1)    
             if libros:
                 libro_por_subtema[subtema] = libros
          

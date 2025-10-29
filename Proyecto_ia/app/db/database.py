@@ -3,8 +3,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends
+from dotenv import load_dotenv
+import os
 
-DATABASE_URL= "mysql+pymysql://root:NbclgnjdjTtVEfRTqVIxlkrlmiItOYfY@interchange.proxy.rlwy.net:39042/railway"
+#carga de variables de entorno 
+# load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
+# password_db = os.getenv("password_db")
+DATABASE_URL= f"mysql+pymysql://admin:Api-Flex-Ia01324679@db-edu-flex.csrueqqoupii.us-east-1.rds.amazonaws.com/bd_eduflex"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
