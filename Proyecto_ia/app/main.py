@@ -70,7 +70,7 @@ def login_estudiante(data: EstudianteLogin, db: Session = Depends(get_db)):
     return {"message": "Login exitoso", "id": estudiante.id, "nombre": estudiante.nombre}
 
 
-file = 'app/student_performance_large_dataset.csv'
+file = 'Proyecto_ia/app/student_performance_large_dataset.csv'
 
 Modelo_estudiante = ModeloPerfilEstudiantil(file)
 X_train, X_test, y_train, y_test = Modelo_estudiante.preprocess_data()
