@@ -158,7 +158,7 @@ async def conversa_con_flexi(mensaje_entrada: MensajeEntrada, db: Session = Depe
     return {"session_id": mensaje_entrada.session_id, "mensaje": respuesta_flexi}
 
 @app.get("/precision_modelo")
-def obtener_precision_modelo():
+async def obtener_precision_modelo():
     metricas = Modelo_estudiante.evaluate(X_test, y_test)
     return metricas
         
